@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/style.css" />
+    <title> Electricity Consumption </title>
+</head>
+
+<body>
+    <script>
+        if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+            window.location.href = '/'; // to main page
+        }
+    </script>
+    <div class="container">
+        <h1>
+            <center>Electricity Consumption Monitoring </center>
+        </h1>
+        <br>
+        {% if message %}
+        <p class="message">{{ message | safe }}</p>
+        {% endif %}
+        <form action="/" method="POST" , class="form-row">
+            <div class="form-group">
+                <label for="date1">Last reading date:</label>
+                <input type="date" name="date1" id="date1" required>
+            </div>
+            <div class="form-group">
+                <label for="num">Last reading (kWh):</label>
+                <input type="number" name="num1" id="num1" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="date2">Current reading date:</label>
+                <input type="date" name="date2" id="date2" required>
+            </div>
+            <div class="form-group">
+                <label for="num2">Current reading (kWh):</label>
+                <input type="number" name="num2" id="num2" min="0" required>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Add entry">
+            </div>
+        </form>
+
+
+        <div class="table-container">
+
+            <div class="row-container header">
+                <table>
+                    <tr>
+                        <th style="width: 10%;">No.</th>
+                        <th style="width: 40%;">Billing Period</th>
+                        <th style="width: 25%;">Total Units (kWh)</th>
+                        <th style="width: 25%;">Total Charge (Rs.)</th>
+                    </tr>
+                </table>
+                <div class="action-icons-header">
+                    <span></span>
+                </div>
+            </div>
+
+
+            {% if ids|length > 0 %}
+            {% for entry in ids %}
+            <div class="row-container">
+                <table>
+                    <tr>
+                        <td style="width: 10%;">{{ loop.index }}</td>
+                        <td style="width: 40%;">{{ entry.billing_period }}</td>
+                        <td style="width: 25%;">{{ entry.total_units }}</td>
+                        <td style="width: 25%;">{{ "{:,.2f}".format(entry.total_charge) }}</td>
+                    </tr>
+                </table>
+                <div class="action-icons">
+                    <a href="/update/{{ entry.id }}" title="Update">
+                        <img src="../static/edit.png" alt="Update" class="icon">
+                    </a>
+                    <a href="/delete/{{ entry.id }}" title="Delete">
+                        <img src="../static/delete.png" alt="Delete" class="icon">
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p style="text-align: center;">No records</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="description">
+        <ul class="bullets">
+            <li><b>0 – 60 kWh: </b> Charge of LKR 7.85 per kWh, with no fixed charge</li>
+            <li><b>61 – 90 kWh: </b> Charge of LKR 10.00 per kWh, with a fixed charge of LKR 90 </li>
+            <li><b>121 – 180 kWh: </b> Charge of LKR 32.00 per kWh, with a fixed charge of LKR 480 </li>
+            <li><b>>180 kWh:</b> Charge of LKR 89.00 per kWh, with a fixed charge of LKR 2,360 </li>
+        </ul>
+    </div>
+</body>
+
+</html>
