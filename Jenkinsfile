@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         GITHUB_REPO = 'https://github.com/shemalperera/electricity-consumption-app'
-        DOCKER_IMAGE = 'shemalperera/electricity-consumption'
+        DOCKER_IMAGE = 'shemalperera/electricity-bill'
         DOCKER_TAG = "${env.BUILD_NUMBER}"
         POSTGRES_VOLUME = "postgres-data-volume"
         IMAGE_VOLUME = "app-image-volume"
