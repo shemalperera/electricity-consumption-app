@@ -3,24 +3,13 @@ pipeline {
     agent any
 
     environment {
-        GITHUB_REPO = 'https://github.com/shemalperera/electricity-consumption-app'
-        DOCKER_IMAGE = 'shemalperera/electricity-bill'
         DOCKER_TAG = "${env.BUILD_NUMBER}"
-        POSTGRES_VOLUME = "postgres-data-volume"
-        IMAGE_VOLUME = "app-image-volume"
-        DOCKER_NETWORK = "workout-network"
-        POSTGRES_CONTAINER_NAME = 'postgres-container'
-        APP_CONTAINER_NAME = 'workout-app-container'
-        POSTGRES_DB = 'ebill'
-        POSTGRES_IMAGE = 'postgres:16.2'
-        OCI_HOST = '141.148.71.2'
-        OCI_USER = 'ubuntu'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                echo "Checking out source code from: ${env.GITHUB_REPO}"
+                echo "Checking out source code from: ${params.GITHUB_REPO}"
                 checkout scm
                 sh 'ls -la'
             }
@@ -28,12 +17,12 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    echo "Building Docker image: ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
+                    echo "Building Docker image: ${params.DOCKER_IMAGE}:${env.DOCKER_TAG}"
                     sh """
                         docker version
                         docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                     """
-                    echo "Docker image build completed: ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
+                    echo "Docker image build completed: ${params.DOCKER_IMAGE}:${env.DOCKER_TAG}"
                 }
             }
         }
@@ -47,7 +36,7 @@ pipeline {
                             docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
                         """
                     }
-                    echo "Image pushed successfully: ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
+                    echo "Image pushed successfully: ${params.DOCKER_IMAGE}:${env.DOCKER_TAG}"
                 }
             }
         }
@@ -65,7 +54,6 @@ pipeline {
                         export DOCKER_IMAGE=${DOCKER_IMAGE}
                         export DOCKER_TAG=${DOCKER_TAG}
                         export POSTGRES_VOLUME=${POSTGRES_VOLUME}
-                        export IMAGE_VOLUME=${IMAGE_VOLUME}
                         export DOCKER_NETWORK=${DOCKER_NETWORK}
                         export POSTGRES_CONTAINER_NAME=${POSTGRES_CONTAINER_NAME}
                         export APP_CONTAINER_NAME=${APP_CONTAINER_NAME}
@@ -106,8 +94,7 @@ pipeline {
                             -e DB_USER=\${POSTGRES_USER} \\
                             -e DB_PASSWORD=\${POSTGRES_PASSWORD} \\
                             -e DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_CONTAINER_NAME}:5432/${POSTGRES_DB}" \
-                            -p 5000:5000 \\
-                            -v \${IMAGE_VOLUME}:/app/images \\
+                            -p 80:5000 \\
                             \${DOCKER_IMAGE}:\${DOCKER_TAG}
 
                         echo "Deployment completed successfully!"
